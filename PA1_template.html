@@ -116,11 +116,12 @@ $(document).ready(function () {
 
 <div id="overview" class="section level1">
 <h1>Overview</h1>
-<p>This assignment makes use of data from a personal activity monitoring device. This device collects data at 5 minute intervals through out the day. The data consists of two months of data from an anonymous individual collected during the months of October and November, 2012 and include the number of steps taken in 5 minute intervals each day.</p>
+<p>It is now possible to collect a large amount of data about personal movement using activity monitoring devices such as a <a href="http://www.fitbit.com/">Fitbit</a>, <a href="http://www.nike.com/us/en_us/c/nikeplus-fuelband">Nike Fuelband</a>, or <a href="https://jawbone.com/up">Jawbone Up</a>. These type of devices are part of the <a href="http://quantifiedself.com/guide/">“quantified self” movement</a> – a group of enthusiasts who take measurements about themselves regularly to improve their health, to find patterns in their behavior, or because they are tech geeks. But these data remain under-utilized both because the raw data are hard to obtain and there is a lack of statistical methods and software for processing and interpreting the data.</p>
+<p>This analysis makes use of a dataset of collected from an activity monitoring devices. It investigates the overall trends of activity including: aggregate statistics, as well as time of day and day of week effects.</p>
 </div>
 <div id="data-description" class="section level1">
 <h1>Data Description</h1>
-<p>The data for this assignment can be downloaded from the course web site:</p>
+<p>This assignment makes use of data from a personal activity monitoring device. This device collects data at 5 minute intervals through out the day. The data consists of two months of data from an anonymous individual collected during the months of October and November, 2012 and include the number of steps taken in 5 minute intervals each day. The data for this assignment can be downloaded from the web site:</p>
 <ul>
 <li>Dataset: <a href="https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip">Activity monitoring data</a>. This data was last accessed 2/1/2016.</li>
 </ul>
@@ -134,10 +135,10 @@ $(document).ready(function () {
 </div>
 <div id="analysis" class="section level1">
 <h1>Analysis</h1>
-<div id="loading-libraries" class="section level2">
-<h2>Loading Libraries</h2>
-<p>In addition the the standard libraries, we are using the following:</p>
-<p>ggplot2 - the Grammar of Graphics library for plotting</p>
+<div id="libraries" class="section level2">
+<h2>Libraries</h2>
+<p>In addition the the standard R libraries, we are using functions in the following:</p>
+<p><a href="http://ggplot2.org/">ggplot2</a> - the Grammar of Graphics library for plotting</p>
 <pre class="r"><code>library(ggplot2)</code></pre>
 </div>
 <div id="loading-and-preprocessing-the-data" class="section level2">
@@ -148,7 +149,13 @@ DAT &lt;- read.csv(&quot;activity.csv&quot;)</code></pre>
 </div>
 <div id="what-is-mean-total-number-of-steps-taken-per-day" class="section level2">
 <h2>What is mean total number of steps taken per day?</h2>
-<p>By summing all of the step measurements by day, we find that the mean number of steps taken daily is 10766.19, and the median number of steps taken daily is 10765.</p>
+<p>For this part of the assignment, you can ignore the missing values in the dataset.</p>
+<ol style="list-style-type: decimal">
+<li>Calculate the total number of steps taken per day</li>
+<li>Make a histogram of the total number of steps taken each day</li>
+<li>Calculate and report the mean and median of the total number of steps taken per day</li>
+</ol>
+<p>Quesitons 1, 2, and 3 are computed in the code below, and shown in the figure “Histogram of Daily Steps”. By summing all of the step measurements by day, we find that the mean number of steps taken daily is 10766.19, and the median number of steps taken daily is 10765.</p>
 <pre class="r"><code>STEPS_BY_DATE &lt;- aggregate(steps ~ date, data=DAT, FUN=&quot;sum&quot;)
 
 M &lt;- mean(STEPS_BY_DATE$steps,na.rm=TRUE)
@@ -164,7 +171,11 @@ ggplot(STEPS_BY_DATE,aes(x=steps)) +
 </div>
 <div id="what-is-the-average-daily-activity-pattern" class="section level2">
 <h2>What is the average daily activity pattern?</h2>
-<p>Across all days, interval 835 contains the maximum average number of steps at 206.17.</p>
+<ol style="list-style-type: decimal">
+<li>Make a time series plot (i.e. 𝚝𝚢𝚙𝚎 = “𝚕”) of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)</li>
+<li>Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?</li>
+</ol>
+<p>The code shown below generates the graph and finds the point of maximum activity. The findings show that across all days, interval 835 contains the maximum average number of steps at 206.17.</p>
 <pre class="r"><code>AVG_5_MIN_INT &lt;- aggregate( steps ~ interval, data=DAT, FUN=mean)
 
 MAX_STEP_ROW &lt;- AVG_5_MIN_INT[ which.max(AVG_5_MIN_INT$steps), ]
@@ -179,14 +190,23 @@ ggplot(AVG_5_MIN_INT,aes(x=interval,y=steps)) +
 </div>
 <div id="imputing-missing-values" class="section level2">
 <h2>Imputing missing values</h2>
+<p>Note that there are a number of days/intervals where there are missing values (coded as 𝙽𝙰). The presence of missing days may introduce bias into some calculations or summaries of the data.</p>
+<ol style="list-style-type: decimal">
+<li>Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with 𝙽𝙰s)</li>
+<li>Devise a strategy for filling in all of the missing values in the dataset. The strategy does not need to be sophisticated. For example, you could use the mean/median for that day, or the mean for that 5-minute interval, etc.</li>
+<li>Create a new dataset that is equal to the original dataset but with the missing data filled in.</li>
+<li>Make a histogram of the total number of steps taken each day and Calculate and report the mean and median total number of steps taken per day. Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?</li>
+</ol>
+<p>The code below computes the answers for this section and generates the histgram for question 4. I found that there are a total of 2304 missing values in the dataset. To fill the missing values, I computed the average number of steps in each interval, and used this value to fill in missing data for matching intervals. Using this method, the new mean and median were both 10766.19, indicating that the mean had not changed, and the new median was slightly higher.</p>
 <pre class="r"><code>DAT2 &lt;- DAT
 
 # Compute the number of missing elements
 NUM_NA &lt;- sum(is.na(DAT2$steps))
+print(NUM_NA)</code></pre>
+<pre><code>## [1] 2304</code></pre>
+<pre class="r"><code># Replace the missing rows with the average of each interval
 
-# Replace the missing rows with the average of each interval
-
-# we need to create a function that we can apply to each element
+# we need to create a function that we can apply to each element that will simulate a lookup
 fill_steps &lt;- function(steps, interval) {
   retval &lt;- steps
   if( is.na(steps) ) {
@@ -212,6 +232,11 @@ ggplot(STEPS_BY_DATE2,aes(x=steps)) +
 </div>
 <div id="are-there-differences-in-activity-patterns-between-weekdays-and-weekends" class="section level2">
 <h2>Are there differences in activity patterns between weekdays and weekends?</h2>
+<ol style="list-style-type: decimal">
+<li>Create a new factor variable in the dataset with two levels – “weekday” and “weekend” indicating whether a given date is a weekday or weekend day.</li>
+<li>Make a panel plot containing a time series plot (i.e. 𝚝𝚢𝚙𝚎 = “𝚕”) of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis). See the README file in the GitHub repository to see an example of what this plot should look like using simulated data.</li>
+</ol>
+<p>The graph to answer this question is computed and shown below. My impression is that the graph shows that there is higher activity throughout the day on the weekends as compared to weekdays. There appears to be a spike in activity at approximately 8:30 am and 6:00 pm on weekdays, which would roughly correspond to the start and end of a work day.</p>
 <pre class="r"><code># Label each aggregated record as weekday or weekend
 DAT2$dayofweek &lt;- weekdays( as.Date( DAT2$date ) )
 DAT2$dow_cat &lt;- ifelse( (DAT2$dayofweek %in% c(&quot;Saturday&quot;,&quot;Sunday&quot;)), &quot;Weekend&quot;, &quot;Weekday&quot;)
