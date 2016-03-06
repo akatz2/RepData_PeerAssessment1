@@ -1,10 +1,5 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-author: "A Katz"
-output: 
-  html_document:
-    keep_md: true
----
+# Reproducible Research: Peer Assessment 1
+A Katz  
 # Overview
 
 This assignment makes use of data from a personal activity monitoring device. This device collects data at 5 minute intervals through out the day. The data consists of two months of data from an anonymous individual collected during the months of October and November, 2012 and include the number of steps taken in 5 minute intervals each day.
@@ -30,7 +25,8 @@ In addition the the standard libraries, we are using the following:
 
 ggplot2 - the Grammar of Graphics library for plotting
 
-```{r}
+
+```r
 library(ggplot2)
 ```
 
@@ -40,7 +36,8 @@ The data is contained in file "activity.zip", which contains a single csv file "
 The data can be loaded directly into R, no additional preprocessing beyond file extraction
 is necessary.
 
-```{r}
+
+```r
 unzip("activity.zip")
 DAT <- read.csv("activity.csv")
 ```
@@ -50,7 +47,8 @@ DAT <- read.csv("activity.csv")
 By summing all of the step measurements by day, we find that the mean number of steps
 taken daily is 10766.19, and the median number of steps taken daily is 10765.
 
-```{r}
+
+```r
 STEPS_BY_DATE <- aggregate(steps ~ date, data=DAT, FUN="sum")
 
 M <- mean(STEPS_BY_DATE$steps,na.rm=TRUE)
@@ -64,11 +62,14 @@ ggplot(STEPS_BY_DATE,aes(x=steps)) +
   annotate("text",label=sprintf("Median Daily Steps: %0.2f",MD), x=17000, y=8)
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-3-1.png)
+
 ## What is the average daily activity pattern?
 
 Across all days, interval 835 contains the maximum average number of steps at 206.17.
 
-```{r}
+
+```r
 AVG_5_MIN_INT <- aggregate( steps ~ interval, data=DAT, FUN=mean)
 
 MAX_STEP_ROW <- AVG_5_MIN_INT[ which.max(AVG_5_MIN_INT$steps), ]
@@ -81,9 +82,11 @@ ggplot(AVG_5_MIN_INT,aes(x=interval,y=steps)) +
   annotate("text",label=sprintf("Max Daily Steps: %0.2f at Interval: %0.0f",MAX_STEP_ROW$steps, MAX_STEP_ROW$interval), x=1600, y=200) 
 ```
 
-## Imputing missing values
-```{r}
+![](PA1_template_files/figure-html/unnamed-chunk-4-1.png)
 
+## Imputing missing values
+
+```r
 DAT2 <- DAT
 
 # Compute the number of missing elements
@@ -113,11 +116,13 @@ ggplot(STEPS_BY_DATE2,aes(x=steps)) +
   geom_vline(xintercept=M2, col="orange", linetype="longdash") +
   annotate("text",label=sprintf("Mean Daily Steps: %0.2f",M2), x=17000, y=9) +
   annotate("text",label=sprintf("Median Daily Steps: %0.2f",MD2), x=17000, y=8)
-
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-5-1.png)
+
 ## Are there differences in activity patterns between weekdays and weekends?
-```{r}
+
+```r
 # Label each aggregated record as weekday or weekend
 DAT2$dayofweek <- weekdays( as.Date( DAT2$date ) )
 DAT2$dow_cat <- ifelse( (DAT2$dayofweek %in% c("Saturday","Sunday")), "Weekend", "Weekday")
@@ -130,5 +135,6 @@ ggplot( STEPS_BY_DOW_CAT, aes( x=interval, y=steps, group=dow_cat ) ) +
   ggtitle("Avergage steps for 5-min interval by Day of Week  ") +
   theme(plot.title=element_text(face="bold", size=14)) +
   scale_colour_discrete(name="Day of Week\nCategory")
-
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-6-1.png)
